@@ -13,59 +13,75 @@ export async function submitContactForm(
   const email = formData.get("email")?.toString().trim();
   const message = formData.get("message")?.toString().trim();
 
-  // Client-side pre-validation (server action safety net)
+  // Validation
   if (!name || !email || !message) {
-    return { success: false, message: "Please fill in all required fields." };
+    return {
+      success: false,
+      message: "Please fill in all required fields.",
+    };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (!emailRegex.test(email)) {
-    return { success: false, message: "Please enter a valid email address." };
+    return {
+      success: false,
+      message: "Please enter a valid email address.",
+    };
   }
 
-  // ── Post to the robust backend API ─────────────────────────────────────────
+  // Production backend URL
   const apiBase =
-    process.env.BACKEND_API_URL || "http://localhost:5000/api";
+    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+    "https://covisualise-backend.onrender.com";
 
   try {
-    const res = await fetch(`${apiBase}/contact`, {
+    const res = await fetch(`${apiBase}/api/contact`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name,
         email,
-        phone: formData.get("phone")?.toString() || undefined,
-        service: formData.get("service")?.toString() || undefined,
-        budget: formData.get("budget")?.toString() || undefined,
+        phone: formData.get("phone")?.toString() || "",
+        service: formData.get("service")?.toString() || "",
+        budget: formData.get("budget")?.toString() || "",
         message,
       }),
-      // Next.js — do not cache form submissions
       cache: "no-store",
     });
 
-    const data = await res.json();
+    // Safe JSON parsing
+    let data;
 
-    if (!res.ok) {
-      // Surface validation errors from backend
-      if (data.errors && Array.isArray(data.errors)) {
-        const firstError = data.errors[0];
-        return {
-          success: false,
-          message: firstError.message || "Validation failed. Please check your inputs.",
-        };
-      }
+    try {
+      data = await res.json();
+    } catch {
       return {
         success: false,
-        message: data.message || "Something went wrong. Please try WhatsApp or email instead.",
+        message: "Server returned an invalid response.",
+      };
+    }
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message:
+          data.message ||
+          "Something went wrong. Please try again later.",
       };
     }
 
     return {
       success: true,
-      message: data.message || "Thanks! We'll get back to you within 4 business hours.",
+      message:
+        data.message ||
+        "Thanks! We'll get back to you within 4 business hours.",
     };
-  } catch (err) {
-    console.error("[submitContactForm] fetch error:", err);
+  } catch (error) {
+    console.error("[submitContactForm] Error:", error);
+
     return {
       success: false,
       message:
