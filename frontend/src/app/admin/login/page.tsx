@@ -92,20 +92,18 @@ export default function AdminLoginPage() {
       }
 
       if (!res.ok) {
-        throw new Error(
-          data?.message || "Login failed."
-        );
-      }
+  throw new Error(data?.message || "Login failed.");
+}
 
-      // SAVE JWT TOKEN
-      localStorage.setItem(
-        "vc_admin_token",
-        data.token
-      );
+console.log("LOGIN RESPONSE:", data);
 
-      setPassword("");
+// SAVE ONLY REAL TOKEN
+localStorage.setItem(
+  "vc_admin_token",
+  data.token
+);
 
-      router.push("/admin");
+router.push("/admin");
 
     } catch (err) {
 
