@@ -8,10 +8,6 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Shield, Mail, Lock, ArrowRight } from "lucide-react";
 
-const apiBase =
-  process.env.NEXT_PUBLIC_BACKEND_API_URL ||
-  "https://covisualise-backend.onrender.com";
-
 export default function AdminLoginPage() {
   const router = useRouter();
 
@@ -21,27 +17,33 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Check existing session
+  // Backend URL
+  const BACKEND_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    "https://covisualise-backend.onrender.com";
+
+  // Check existing admin session
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch(`${apiBase}/api/admin/stats`, {
-          cache: "no-store",
+        const res = await fetch(`${BACKEND_URL}/api/admin/stats`, {
+          method: "GET",
           credentials: "include",
+          cache: "no-store",
         });
 
         if (res.ok) {
           router.replace("/admin");
         }
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("Session check failed:", err);
       }
     };
 
     checkSession();
-  }, [router]);
+  }, [router, BACKEND_URL]);
 
-  // Handle login
+  // Login submit
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
@@ -51,37 +53,46 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${apiBase}/api/admin/login`, {
+      const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        cache: "no-store",
         body: JSON.stringify({
           email,
           password,
         }),
-        cache: "no-store",
       });
 
-      let data;
+      // Safe JSON parsing
+      let data: any = {};
 
       try {
         data = await res.json();
       } catch {
-        throw new Error("Invalid server response.");
+        data = {};
       }
 
       if (!res.ok) {
         throw new Error(data?.message || "Login failed.");
       }
 
+      // Clear password after success
       setPassword("");
 
+      // Redirect to admin dashboard
       router.push("/admin");
+      router.refresh();
+
     } catch (err) {
+      console.error("Admin login error:", err);
+
       const message =
-        err instanceof Error ? err.message : "Login failed.";
+        err instanceof Error
+          ? err.message
+          : "Unable to login.";
 
       setError(message);
     } finally {
@@ -102,13 +113,14 @@ export default function AdminLoginPage() {
           <GlassCard hover={false} className="space-y-6">
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5 text-accent" />
-
               <h2 className="font-display text-xl font-semibold">
                 Secure access
               </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Email */}
               <label className="block text-sm text-text-secondary">
                 Email
 
@@ -128,6 +140,7 @@ export default function AdminLoginPage() {
                 </div>
               </label>
 
+              {/* Password */}
               <label className="block text-sm text-text-secondary">
                 Password
 
@@ -147,12 +160,14 @@ export default function AdminLoginPage() {
                 </div>
               </label>
 
+              {/* Error */}
               {error && (
-                <p className="text-sm text-accent">
+                <p className="text-sm text-red-400">
                   {error}
                 </p>
               )}
 
+              {/* Button */}
               <Button
                 type="submit"
                 className="w-full"
