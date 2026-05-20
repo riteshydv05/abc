@@ -17,24 +17,37 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Backend URL
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL ||
     "https://covisualise-backend.onrender.com";
 
-  // Check existing admin session
+  // CHECK EXISTING LOGIN
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/admin/stats`, {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        });
+
+        const token =
+          localStorage.getItem("vc_admin_token");
+
+        if (!token) return;
+
+        const res = await fetch(
+          `${BACKEND_URL}/api/admin/stats`,
+          {
+            method: "GET",
+
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+            cache: "no-store",
+          }
+        );
 
         if (res.ok) {
           router.replace("/admin");
         }
+
       } catch (err) {
         console.error("Session check failed:", err);
       }
@@ -43,7 +56,7 @@ export default function AdminLoginPage() {
     checkSession();
   }, [router, BACKEND_URL]);
 
-  // Login submit
+  // LOGIN
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
@@ -53,20 +66,23 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
 
-      // Safe JSON parsing
+      const res = await fetch(
+        `${BACKEND_URL}/api/admin/login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
       let data: any = {};
 
       try {
@@ -76,17 +92,23 @@ export default function AdminLoginPage() {
       }
 
       if (!res.ok) {
-        throw new Error(data?.message || "Login failed.");
+        throw new Error(
+          data?.message || "Login failed."
+        );
       }
 
-      // Clear password after success
+      // SAVE JWT TOKEN
+      localStorage.setItem(
+        "vc_admin_token",
+        data.token
+      );
+
       setPassword("");
 
-      // Redirect to admin dashboard
       router.push("/admin");
-      router.refresh();
 
     } catch (err) {
+
       console.error("Admin login error:", err);
 
       const message =
@@ -95,8 +117,11 @@ export default function AdminLoginPage() {
           : "Unable to login.";
 
       setError(message);
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -110,17 +135,23 @@ export default function AdminLoginPage() {
 
       <Container className="pb-16">
         <div className="max-w-2xl">
-          <GlassCard hover={false} className="space-y-6">
+          <GlassCard
+            hover={false}
+            className="space-y-6"
+          >
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5 text-accent" />
+
               <h2 className="font-display text-xl font-semibold">
                 Secure access
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-
-              {/* Email */}
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
+              {/* EMAIL */}
               <label className="block text-sm text-text-secondary">
                 Email
 
@@ -140,7 +171,7 @@ export default function AdminLoginPage() {
                 </div>
               </label>
 
-              {/* Password */}
+              {/* PASSWORD */}
               <label className="block text-sm text-text-secondary">
                 Password
 
@@ -160,20 +191,22 @@ export default function AdminLoginPage() {
                 </div>
               </label>
 
-              {/* Error */}
+              {/* ERROR */}
               {error && (
                 <p className="text-sm text-red-400">
                   {error}
                 </p>
               )}
 
-              {/* Button */}
+              {/* BUTTON */}
               <Button
                 type="submit"
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? "Signing in..." : "Sign in"}
+                {loading
+                  ? "Signing in..."
+                  : "Sign in"}
 
                 {!loading && (
                   <ArrowRight className="h-4 w-4" />
