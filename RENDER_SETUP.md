@@ -1,4 +1,56 @@
-# Render Deployment Guide
+## Fixing the 401 Admin Login Error
+
+If you see **"Unauthorized"** error (401) when trying to login:
+
+### The Problem
+Render doesn't have your environment variables set, so:
+1. Admin account is NOT being seeded
+2. JWT secret doesn't match
+3. Database connection may be missing
+
+### The Solution (Required - DO THIS FIRST)
+
+**CRITICAL: You MUST set these environment variables on Render:**
+
+1. Go to: https://dashboard.render.com/services/covisualise-backend
+2. Click the **"Environment"** tab
+3. Add each variable below (copy-paste exactly):
+
+| Variable | Value |
+|----------|-------|
+| `NODE_ENV` | `production` |
+| `MONGO_URI` | `mongodb+srv://riteshyvns2005_db_user:uilHgsJiZf7y1JWt@cluster0.pmyo1hw.mongodb.net/visualise_co?retryWrites=true&w=majority&appName=Cluster0` |
+| `ADMIN_EMAIL` | `visualiseco@gmail.com` |
+| `ADMIN_PASSWORD` | `ankur123456` |
+| `ADMIN_JWT_SECRET` | `jvajsdhfofhvnjahdfhsdajksdhfja` |
+| `ALLOWED_ORIGINS` | `https://abc-blue-chi.vercel.app,https://visualise.co,https://www.visualise.co,http://localhost:3000` |
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | `hello@visualise.co` |
+| `SMTP_PASS` | `kymj wfof oacu gwvx` |
+| `NOTIFY_EMAIL` | `admin@visualise.co` |
+
+4. Click **"Save"** button
+5. Click **"Manual Deploy"** (or wait for auto-redeployment)
+6. Check the **Logs** tab - you should see: `✓ Seeded admin account for visualiseco@gmail.com`
+
+### Test the Login
+
+Once deployment completes:
+1. Open: https://abc-blue-chi.vercel.app/admin/login
+2. Enter credentials:
+   - **Email**: `visualiseco@gmail.com`
+   - **Password**: `ankur123456`
+3. Click Sign In → Should redirect to `/admin` dashboard
+
+### Still Getting 401?
+
+Check Render logs for these signs of failure:
+- `ADMIN_EMAIL/ADMIN_PASSWORD not set` → Variables not saved correctly
+- `ADMIN_JWT_SECRET missing` → JWT secret not in environment
+- Connection errors → MongoDB URI issue
+
+If you see these, repeat the environment variable setup above.
 
 ## Environment Variables Setup
 
