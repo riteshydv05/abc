@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
                     onChange={(event) =>
                       setEmail(event.target.value)
                     }
-                    placeholder="admin@visualise.co"
+                    placeholder="visualiseco@gmail.com"
                     required
                     className="w-full bg-transparent text-sm text-white outline-none"
                   />
