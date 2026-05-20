@@ -30,12 +30,11 @@ export default function AdminLoginPage() {
   localStorage.getItem("vc_admin_token");
 
 if (!token) {
-  router.push("/admin/login");
   return;
 }
 
 const res = await fetch(
-  "https://covisualise-backend.onrender.com/api/admin/stats",
+  `${BACKEND_URL}/api/admin/stats`,
   {
     method: "GET",
 
