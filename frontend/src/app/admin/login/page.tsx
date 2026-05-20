@@ -27,22 +27,25 @@ export default function AdminLoginPage() {
       try {
 
         const token =
-          localStorage.getItem("vc_admin_token");
+  localStorage.getItem("vc_admin_token");
 
-        if (!token) return;
+if (!token) {
+  router.push("/admin/login");
+  return;
+}
 
-        const res = await fetch(
-          `${BACKEND_URL}/api/admin/stats`,
-          {
-            method: "GET",
+const res = await fetch(
+  "https://covisualise-backend.onrender.com/api/admin/stats",
+  {
+    method: "GET",
 
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
 
-            cache: "no-store",
-          }
-        );
+    cache: "no-store",
+  }
+);
 
         if (res.ok) {
           router.replace("/admin");
