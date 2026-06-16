@@ -1,113 +1,289 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { siteConfig } from "@/lib/site";
-import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
-import type { Testimonial } from "@/components/ui/testimonials-columns-1";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { FadeInUp } from "@/components/motion/FadeInUp";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
-// Map siteConfig testimonials to the column format.
-// We use real Unsplash portrait images to match the avatar slot.
-const testimonialData: Testimonial[] = [
+interface Client {
+  name: string;
+  initials: string;
+  industry: string;
+  color: string;
+}
+
+interface TestimonialData {
+  text: string;
+  name: string;
+  company: string;
+  rating: number;
+  initials: string;
+}
+
+const clients: Client[] = [
+  { name: "Crypto Millionaire Rohit", initials: "CM", industry: "Finance & Crypto", color: "#f59e0b" },
+  { name: "Crypto Asad", initials: "CA", industry: "Finance & Crypto", color: "#8b5cf6" },
+  { name: "Learn With Haripriyaa", initials: "LH", industry: "Education", color: "#06b6d4" },
+  { name: "GoZero Official", initials: "GZ", industry: "Sustainability", color: "#22c55e" },
+  { name: "Cryptovelps", initials: "CV", industry: "Finance & Crypto", color: "#f97316" },
+  { name: "Nerd With A Bindi", initials: "NB", industry: "Lifestyle & Content", color: "#ec4899" },
+  { name: "Startup Decoding", initials: "SD", industry: "Business & Startup", color: "#3b82f6" },
+  { name: "Adore Skin Clinic", initials: "AS", industry: "Healthcare & Beauty", color: "#a855f7" },
+  { name: "Zoomer Health", initials: "ZH", industry: "Health & Wellness", color: "#14b8a6" },
+  { name: "Indian Stories", initials: "IS", industry: "Entertainment", color: "#ef4444" },
+  { name: "The Unconventional CA", initials: "UC", industry: "Finance & Consulting", color: "#6366f1" },
+];
+
+const testimonials: TestimonialData[] = [
   {
-    text: siteConfig.testimonials[0].quote,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-    name: siteConfig.testimonials[0].name,
-    role: siteConfig.testimonials[0].company,
+    text: "Visualise.Co transformed our YouTube channel completely. Our watch time doubled within two months of their edits. They understand exactly what our audience wants.",
+    name: "Crypto Millionaire Rohit",
+    company: "Crypto Millionaire Rohit",
+    rating: 5,
+    initials: "CM",
   },
   {
-    text: siteConfig.testimonials[1].quote,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
-    name: siteConfig.testimonials[1].name,
-    role: siteConfig.testimonials[1].company,
+    text: "The level of professionalism and creativity is unmatched. From thumbnails to full edits, everything is polished to perfection. Our engagement has never been better.",
+    name: "Crypto Asad",
+    company: "Crypto Asad",
+    rating: 5,
+    initials: "CA",
   },
   {
-    text: siteConfig.testimonials[2].quote,
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
-    name: siteConfig.testimonials[2].name,
-    role: siteConfig.testimonials[2].company,
+    text: "They brought our educational content to life. The visual storytelling they add makes complex topics easy and enjoyable to watch. Our students love the new format.",
+    name: "Learn With Haripriyaa",
+    company: "Learn With Haripriyaa",
+    rating: 5,
+    initials: "LH",
   },
   {
-    text: siteConfig.testimonials[3].quote,
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
-    name: siteConfig.testimonials[3].name,
-    role: siteConfig.testimonials[3].company,
-  },
-  // Extra cards to fill third column on large screens
-  {
-    text: "From concept to delivery, every detail was handled with care. Our brand finally looks as good as it actually is.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
-    name: "Arjun Kapoor",
-    role: "GrowthLab",
+    text: "Working with Visualise.Co has been a game-changer for our brand. Their design sensibilities are world-class and they genuinely care about delivering excellence every single time.",
+    name: "Nerd With A Bindi",
+    company: "Nerd With A Bindi",
+    rating: 5,
+    initials: "NB",
   },
   {
-    text: "They understood our aesthetic immediately. The social creatives they produce are consistently on-brand and high quality.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face",
-    name: "Nisha Reddy",
-    role: "StyleCo Fashion",
+    text: "The team at Visualise.Co handles our entire creative pipeline. Fast turnarounds, zero compromise on quality. They're an extension of our team now.",
+    name: "Startup Decoding",
+    company: "Startup Decoding",
+    rating: 5,
+    initials: "SD",
   },
   {
-    text: "One team for everything — video, design, website, and social. That's rare and incredibly valuable for a growing startup.",
-    image: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=80&h=80&fit=crop&crop=face",
-    name: "Vikram Joshi",
-    role: "FoodHub India",
-  },
-  {
-    text: "Fast turnarounds and zero compromise on quality. We've partnered with Visualise.Co for over a year and won't look back.",
-    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80&h=80&fit=crop&crop=face",
-    name: "Meera Singh",
-    role: "EduPro Academy",
-  },
-  {
-    text: "Our YouTube retention rate jumped after switching to their editors. The storytelling they bring to raw footage is exceptional.",
-    image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=80&h=80&fit=crop&crop=face",
-    name: "Dev Ahuja",
-    role: "TechStart India",
+    text: "From social creatives to brand design, every deliverable exceeds expectations. Our clinic's online presence looks premium and professional thanks to their work.",
+    name: "Adore Skin Clinic",
+    company: "Adore Skin Clinic",
+    rating: 5,
+    initials: "AS",
   },
 ];
 
-const firstColumn  = testimonialData.slice(0, 3);
-const secondColumn = testimonialData.slice(3, 6);
-const thirdColumn  = testimonialData.slice(6, 9);
+const trustIndicators = [
+  { value: "11+", label: "Clients Served" },
+  { value: "8+", label: "Industries" },
+  { value: "200+", label: "Projects Delivered" },
+];
+
+function ClientCard({ client, index }: { client: Client; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.4, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      className="group relative flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:border-accent/20 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-accent/5"
+    >
+      <div
+        className="flex h-14 w-14 items-center justify-center rounded-xl text-lg font-bold tracking-tight text-white transition-transform duration-300 group-hover:scale-110"
+        style={{ background: `linear-gradient(135deg, ${client.color}, ${client.color}88)` }}
+      >
+        {client.initials}
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-semibold text-text-primary leading-tight">
+          {client.name}
+        </p>
+        <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-text-secondary/60">
+          {client.industry}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg
+          key={i}
+          className={cn("h-3.5 w-3.5", i < rating ? "text-accent" : "text-white/10")}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 export function Testimonials() {
+  const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const goTo = useCallback((index: number) => {
+    setDirection(index > active ? 1 : -1);
+    setActive(index);
+  }, [active]);
+
+  const next = useCallback(() => {
+    setDirection(1);
+    setActive((prev) => (prev + 1) % testimonials.length);
+  }, []);
+
+  const prev = useCallback(() => {
+    setDirection(-1);
+    setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [next]);
+
+  const variants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -120 : 120, opacity: 0 }),
+  };
+
   return (
-    <section className="section-padding bg-bg-secondary relative overflow-hidden">
-      {/* Subtle ambient glow */}
+    <section className="section-padding relative overflow-hidden">
+      {/* Ambient glow */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255,92,0,0.06) 0%, transparent 70%)",
+            "radial-gradient(ellipse 60% 35% at 50% 0%, rgba(255,92,0,0.05) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 100%, rgba(255,92,0,0.03) 0%, transparent 60%)",
         }}
       />
 
       <div className="container-main relative z-10">
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true }}
-          className="flex flex-col items-center text-center max-w-xl mx-auto mb-14"
-        >
-          <span className="inline-block border border-accent/30 text-accent text-xs font-medium px-4 py-1.5 rounded-full mb-5 tracking-wider uppercase">
-            Testimonials
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight">
-            What Clients Say
-          </h2>
-          <p className="mt-4 text-text-secondary text-base">
-            Real results, real feedback — from brands that trust us with their
-            creative presence.
-          </p>
-        </motion.div>
+        {/* ——— Header ——— */}
+        <SectionHeading
+          label="Clients & Testimonials"
+          title="Trusted by Creators & Brands"
+          description="We partner with creators, startups, and enterprises to craft visuals that build authority and drive growth."
+          align="center"
+        />
 
-        {/* Scrolling columns */}
-        <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[680px] overflow-hidden">
-          <TestimonialsColumn testimonials={firstColumn}  duration={18} />
-          <TestimonialsColumn testimonials={secondColumn} duration={22} className="hidden md:block" />
-          <TestimonialsColumn testimonials={thirdColumn}  duration={20} className="hidden lg:block" />
-        </div>
+
+        {/* ——— Testimonial Carousel ——— */}
+        <FadeInUp>
+          <div className="relative mx-auto max-w-4xl">
+            {/* Section sub-label */}
+            <div className="mb-8 text-center">
+              <span className="inline-block rounded-full border border-accent/30 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-accent">
+                Kind Words
+              </span>
+            </div>
+
+            {/* Card */}
+            <div className="relative">
+              <button
+                onClick={prev}
+                aria-label="Previous testimonial"
+                className="absolute -left-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-bg-card/80 p-2.5 text-text-secondary backdrop-blur-sm transition-all duration-300 hover:border-accent/30 hover:text-accent hover:shadow-lg hover:shadow-accent/10 md:flex"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={next}
+                aria-label="Next testimonial"
+                className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-bg-card/80 p-2.5 text-text-secondary backdrop-blur-sm transition-all duration-300 hover:border-accent/30 hover:text-accent hover:shadow-lg hover:shadow-accent/10 md:flex"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] px-6 py-10 md:px-12 md:py-14">
+                <AnimatePresence mode="wait" custom={direction}>
+                  <motion.div
+                    key={active}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    {/* Quote icon */}
+                    <svg
+                      className="mb-6 h-8 w-8 text-accent/30"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                    </svg>
+
+                    {/* Rating */}
+                    <StarRating rating={testimonials[active].rating} />
+
+                    {/* Quote text */}
+                    <p className="mt-5 text-base leading-relaxed text-text-secondary md:text-lg">
+                      &ldquo;{testimonials[active].text}&rdquo;
+                    </p>
+
+                    {/* Author */}
+                    <div className="mt-8 flex items-center gap-3">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+                        style={{
+                          background: `linear-gradient(135deg, ${clients.find((c) => c.name === testimonials[active].name)?.color || "#ff5c00"}, ${clients.find((c) => c.name === testimonials[active].name)?.color || "#ff5c00"}88)`,
+                        }}
+                      >
+                        {testimonials[active].initials}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-semibold text-text-primary">
+                          {testimonials[active].name}
+                        </p>
+                        <p className="text-xs text-text-secondary/60">
+                          {testimonials[active].company}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Dots */}
+            <div className="mt-6 flex items-center justify-center gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500",
+                    i === active
+                      ? "w-8 bg-accent"
+                      : "w-1.5 bg-white/20 hover:bg-white/40"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+        </FadeInUp>
       </div>
     </section>
   );
