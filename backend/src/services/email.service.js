@@ -87,7 +87,7 @@ async function sendContactNotification(contact) {
           <div style="padding:32px;border:1px solid #222;">
             <p>Hi ${safe(contact.name).split(" ")[0]},</p>
             <p>Thanks for getting in touch with Visualise.Co. We've received your enquiry and will get back to you <strong>within 4 business hours</strong>.</p>
-            <p>In the meantime, feel free to <a href="https://wa.me/919876543210" style="color:#ff6b00;">chat with us on WhatsApp</a> for a faster response.</p>
+            <p>In the meantime, feel free to <a href="https://wa.me/919598822384" style="color:#ff6b00;">chat with us on WhatsApp</a> for a faster response.</p>
             <hr style="border:none;border-top:1px solid #222;margin:20px 0;" />
             <p style="color:#888;font-size:13px;">Your message summary:</p>
             <p style="background:#1a1a1a;padding:16px;border-radius:8px;font-size:13px;color:#aaa;">${safe(contact.message)}</p>

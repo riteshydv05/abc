@@ -13,8 +13,8 @@ export const siteConfig = {
   },
   contact: {
     email: "hello@visualise.co",
-    phone: "+91 98765 43210",
-    whatsapp: "919876543210",
+    phone: "+91 95988 22384",
+    whatsapp: "919598822384",
     responseTime: "We reply within 4 business hours",
   },
   social: {
