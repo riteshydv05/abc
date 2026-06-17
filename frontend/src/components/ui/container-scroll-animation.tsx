@@ -36,11 +36,11 @@ export const ContainerScroll = ({
 
   return (
     <div
-      className="relative h-[60rem] md:h-[80rem] flex items-center justify-center p-2 md:p-20"
+      className="relative h-[75rem] md:h-[80rem] flex items-center justify-center p-2 md:p-20"
       ref={containerRef}
     >
       <div
-        className="py-10 md:py-40 w-full relative"
+        className="py-6 md:py-40 w-full relative"
         style={{ perspective: "1000px" }}
       >
         <Header translate={translate} titleComponent={titleComponent} />
@@ -80,7 +80,7 @@ export const Card = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="flex justify-center -mt-12">
+    <div className="flex justify-center -mt-12 px-4 md:px-0">
       <motion.div
         style={{
           rotateX: rotate,
@@ -88,7 +88,7 @@ export const Card = ({
           boxShadow:
             "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
         }}
-        className="relative w-[270px] md:w-[320px] border-[6px] border-[#3a3a3a] bg-[#1a1a1a] rounded-[48px] shadow-2xl select-none"
+        className="relative w-full max-w-[320px] md:w-[320px] border-[6px] border-[#3a3a3a] bg-[#1a1a1a] rounded-[48px] shadow-2xl select-none"
       >
         {/* Side buttons — volume up */}
         <div className="absolute -left-[9px] top-[88px] w-[4px] h-7 bg-[#444] rounded-l-full" />
