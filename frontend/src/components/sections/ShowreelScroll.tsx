@@ -1,54 +1,49 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 const slides = [
   {
-    src: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1400&h=720&fit=crop",
+    src: "https://res.cloudinary.com/dbqau6whg/video/upload/v1781621758/1_a4czgw.mp4",
+    label: "Showreel",
+  },
+  {
+    src: "https://res.cloudinary.com/dbqau6whg/video/upload/v1781621789/2_2_wunuab.mp4",
     label: "Video Editing",
-    alt: "Professional video editing timeline — cinematic colour grading",
   },
   {
-    src: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1400&h=720&fit=crop",
-    label: "Graphic Design",
-    alt: "Brand identity and graphic design work for a client",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=1400&h=720&fit=crop",
-    label: "Social Media",
-    alt: "Social media content strategy and creative posts",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1400&h=720&fit=crop",
-    label: "Web Development",
-    alt: "Modern web development — responsive UI on laptop",
+    src: "https://res.cloudinary.com/dbqau6whg/video/upload/v1781621789/3_1_quqi52.mp4",
+    label: "Creative Production",
   },
 ];
 
+/** Simple fade between slides — no x-slide so no "bleed outside" on clip */
 const variants = {
-  enter: (dir: number) => ({ x: dir > 0 ? "60%" : "-60%", opacity: 0, scale: 0.95 }),
-  center: { x: 0, opacity: 1, scale: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? "-60%" : "60%", opacity: 0, scale: 0.95 }),
+  enter: { opacity: 0, scale: 1.04 },
+  center: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.97 },
 };
 
 export function ShowreelScroll() {
   const [[page, dir], setPage] = useState([0, 0]);
   const idx = ((page % slides.length) + slides.length) % slides.length;
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const paginate = useCallback(
     (newDir: number) => setPage(([p]) => [p + newDir, newDir]),
     []
   );
 
-  // Auto-advance every 4 s
+  // Reset & autoplay on slide change
   useEffect(() => {
-    const t = setTimeout(() => paginate(1), 4000);
-    return () => clearTimeout(t);
-  }, [page, paginate]);
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.play().catch(() => {});
+    }
+  }, [idx]);
 
   return (
     <div className="flex flex-col overflow-hidden bg-bg-primary">
@@ -78,9 +73,15 @@ export function ShowreelScroll() {
           </div>
         }
       >
-        {/* ── Carousel inside the scroll card ── */}
-        <div className="relative h-full w-full overflow-hidden rounded-2xl select-none">
-          <AnimatePresence initial={false} custom={dir} mode="popLayout">
+        {/*
+          Parent gives us an `absolute inset-0` box whose size is set by
+          the phone-screen's aspect-ratio container. Everything here must
+          fill that box absolutely.
+        */}
+        <div className="absolute inset-0 overflow-hidden bg-black">
+
+          {/* Animated slide */}
+          <AnimatePresence initial={false} custom={dir} mode="sync">
             <motion.div
               key={page}
               custom={dir}
@@ -88,53 +89,63 @@ export function ShowreelScroll() {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+              transition={{ duration: 0.45, ease: "easeInOut" }}
               className="absolute inset-0"
             >
-              <Image
+              <video
+                ref={videoRef}
                 src={slides[idx].src}
-                alt={slides[idx].alt}
-                fill
-                className="object-cover object-center"
-                draggable={false}
-                priority={idx === 0}
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover"
               />
-              {/* Slide label */}
-              <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md border border-white/10">
-                  {slides[idx].label}
-                </span>
-              </div>
             </motion.div>
           </AnimatePresence>
 
-          {/* Prev / Next arrows */}
+          {/* Slide label — top left */}
+          <div className="absolute top-2 left-2 z-20 pointer-events-none">
+            <span className="rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-md border border-white/10">
+              {slides[idx].label}
+            </span>
+          </div>
+
+          {/* Prev arrow */}
           <button
             onClick={() => paginate(-1)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md border border-white/10 transition hover:bg-black/70"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md border border-white/10 transition hover:bg-black/70"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => paginate(1)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md border border-white/10 transition hover:bg-black/70"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
 
-          {/* Dot indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+          {/* Next arrow */}
+          <button
+            onClick={() => paginate(1)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md border border-white/10 transition hover:bg-black/70"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+
+          {/* Dot indicators — sits above native video controls */}
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
             {slides.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setPage(([p]) => [p + (i - idx), i > idx ? 1 : -1])}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === idx ? "w-5 bg-[#ff5c00]" : "w-1.5 bg-white/40"}`}
+                onClick={() =>
+                  setPage(([p]) => [p + (i - idx), i > idx ? 1 : -1])
+                }
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  i === idx ? "w-4 bg-[#ff5c00]" : "w-1 bg-white/40"
+                }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
             ))}
           </div>
+
         </div>
       </ContainerScroll>
     </div>

@@ -80,18 +80,45 @@ export const Card = ({
   children: React.ReactNode;
 }) => {
   return (
-    <motion.div
-      style={{
-        rotateX: rotate,
-        scale,
-        boxShadow:
-          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
-      }}
-      className="max-w-5xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-[#6C6C6C] p-2 md:p-6 bg-[#222222] rounded-[30px] shadow-2xl"
-    >
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-zinc-900 md:rounded-2xl md:p-4">
-        {children}
-      </div>
-    </motion.div>
+    <div className="flex justify-center -mt-12">
+      <motion.div
+        style={{
+          rotateX: rotate,
+          scale,
+          boxShadow:
+            "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
+        }}
+        className="relative w-[270px] md:w-[320px] border-[6px] border-[#3a3a3a] bg-[#1a1a1a] rounded-[48px] shadow-2xl select-none"
+      >
+        {/* Side buttons — volume up */}
+        <div className="absolute -left-[9px] top-[88px] w-[4px] h-7 bg-[#444] rounded-l-full" />
+        <div className="absolute -left-[9px] top-[124px] w-[4px] h-7 bg-[#444] rounded-l-full" />
+        {/* Side button — power */}
+        <div className="absolute -right-[9px] top-[108px] w-[4px] h-12 bg-[#444] rounded-r-full" />
+
+        {/* Top speaker + Dynamic island */}
+        <div className="flex justify-center items-center pt-3 pb-2 gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#2a2a2a] border border-zinc-700" />
+          <div className="w-[88px] h-[26px] bg-black rounded-full" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#2a2a2a] border border-zinc-700" />
+        </div>
+
+        {/* ── Phone screen — the key fix: position relative + overflow hidden ── */}
+        <div
+          className="relative mx-[3px] mb-[3px] overflow-hidden rounded-[36px] bg-black"
+          style={{ aspectRatio: "9 / 19.5" }}
+        >
+          {/* Children fill absolutely */}
+          <div className="absolute inset-0">
+            {children}
+          </div>
+        </div>
+
+        {/* Home bar */}
+        <div className="flex justify-center py-2.5">
+          <div className="w-20 h-1 bg-[#555] rounded-full" />
+        </div>
+      </motion.div>
+    </div>
   );
 };
