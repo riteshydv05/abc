@@ -38,7 +38,7 @@ function SlideContent({
   page: number;
   dir: number;
   idx: number;
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
   paginate: (d: number) => void;
   setPage: React.Dispatch<React.SetStateAction<[number, number]>>;
 }) {
